@@ -23,6 +23,22 @@ $server route GET /api {localhost:8080} apply {
 	}
 }
 
+$server route POST /api/file {localhost:8080} apply {
+	{event session {data ""}} {
+		switch -- $event "read" {
+			puts $data
+			return
+		} "write" {
+			set response [::tanzer::response new 200 {
+				Content-Type "text/plain"
+			}]
+			$response buffer "got $data"
+			$session send $response
+			$session nextRequest
+		}
+	}
+}
+
 $server route GET /* {localhost:8080} [::tanzer::file::handler new [list root ./public]]
 
 $server listen 8080
