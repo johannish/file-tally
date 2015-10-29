@@ -1,6 +1,10 @@
 package require tanzer 0.1
 package require tanzer::file::handler
 
+source ./repository.tcl
+
+::repo::create
+
 set server [::tanzer::server new]
 
 $server route GET /api {localhost:8080} apply {
