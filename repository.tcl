@@ -11,22 +11,25 @@ proc ::repo::create {} {
 }
 
 #data should be a list void of commas. we put in the commas in this proc
-proc ::repo::insert {table, data} {
+proc ::repo::insert {table} {
 	#easy way:
-	#db eval {INSERT INTO $table VALUES($data)}
+	#fileRepo eval {INSERT INTO $table VALUES($data)}
 
 	#if $data is a list and doesn*t have commas we need to add them:
-	db eval {INSERT INTO $table VALUES([join [foreach item $data { $item }] , ])}
+	#fileRepo eval {INSERT INTO $table VALUES([join [foreach item $data { $item }] , ])}
+	puts $table
+	#problem with substitution here
+	fileRepo eval {INSERT INTO $table VALUES('filename')}
 }
 
 #can only take one entry at a time at this point
-proc ::repo::update {table, id, col, data} {
-	db eval {UPDATE $table SET $col=$data WHERE rowid=$id;}
+proc ::repo::update {table id col data} {
+	fileRepo eval {UPDATE $table SET $col=$data WHERE rowid=$id;}
 }
 
 #can only delete according to row at this point
-proc ::repo::delete {table, id} {
-	db eval {DELETE FROM $table WHERE rowid=$id;}
+proc ::repo::delete {table id} {
+	fileRepo eval {DELETE FROM $table WHERE rowid=$id;}
 }
 
 
