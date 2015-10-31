@@ -6,8 +6,40 @@ proc ::repo::create {} {
 	file mkdir data
 	sqlite3 fileRepo ./data/repo.sqlite -create true
 
-	fileRepo eval { create table if not exists t1(a int, b text) }
+	fileRepo eval { create table if not exists uploads(filename string, description text, type string, uploader string, blob blob, tags text, votes int, program_id int, created_at datetime, modified_at datetime) }
+	fileRepo eval { create table if not exists programs(name string, description text, version string, tags text, created_at datetime, modified_at datetime) }
 }
+
+#data should be a list void of commas. we put in the commas in this proc
+proc ::repo::insert {table, data} {
+	#easy way:
+	#db eval {INSERT INTO $table VALUES($data)}
+
+	#if $data is a list and doesn*t have commas we need to add them:
+	db eval {INSERT INTO $table VALUES([join [foreach item $data { $item }] , ])}
+}
+
+#can only take one entry at a time at this point
+proc ::repo::update {table, id, col, data} {
+	db eval {UPDATE $table SET $col=$data WHERE rowid=$id;}
+}
+
+#can only delete according to row at this point
+proc ::repo::delete {table, id} {
+	db eval {DELETE FROM $table WHERE rowid=$id;}
+}
+
+
+
+
+
+
+
+
+
+
+
+
 #flesh out index.html to show a list of files,
 #dynamically create index.html on the server- put place holders in it to read data from data base and fill it.
 #index.html is just a template
