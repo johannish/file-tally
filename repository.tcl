@@ -17,9 +17,18 @@ proc ::repo::insert {table} {
 
 	#if $data is a list and doesn*t have commas we need to add them:
 	#fileRepo eval {INSERT INTO $table VALUES([join [foreach item $data { $item }] , ])}
-	puts $table
-	#problem with substitution here
-	fileRepo eval {INSERT INTO $table VALUES('filename')}
+	switch $table {
+    uploads {
+        fileRepo eval {INSERT INTO uploads VALUES('filename')}
+    }
+    programs {
+        fileRepo eval {INSERT INTO programs VALUES('filename')}
+    }
+    default {
+        fileRepo eval {INSERT INTO uploads VALUES('filename')}
+    }
+	}
+
 }
 
 #can only take one entry at a time at this point
