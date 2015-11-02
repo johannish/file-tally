@@ -2,6 +2,7 @@ package require tanzer 0.1
 package require tanzer::file::handler
 
 source ./repository.tcl
+source ./lib/simple-templater.tcl
 
 ::repo::create
 
@@ -36,6 +37,24 @@ $server route POST /api/file {localhost:8080} apply {
 			$session send $response
 			$session nextRequest
 		}
+	}
+}
+
+$server route GET /file {localhost:8080} apply {
+	{event session args} {
+		if {$event ne "write"} return
+		set response [::tanzer::response new 200 {
+			Content-Type "text/html"
+		}]
+
+		set fp [open "public/file-details.html" r]
+		set template [read $fp]
+		close $fp
+
+		$response buffer [::simp-templer::render {name myfile.txt upload-date 2015-11-02} $template]
+
+		$session send $response
+		$session nextRequest
 	}
 }
 
