@@ -6,8 +6,8 @@ proc ::repo::create {} {
 	file mkdir data
 	sqlite3 fileRepo ./data/repo.sqlite -create true
 
-	fileRepo eval { create table if not exists uploads(name string, description text, type string, uploader string, blob blob, tags text, votes int, program_id int, created_at datetime, modified_at datetime) }
-	fileRepo eval { create table if not exists programs(name string, description text, version string, tags text, created_at datetime, modified_at datetime) }
+	fileRepo eval { create table if not exists uploads(name string, description text, type string, uploader string, blob blob, tags text, votes int, programs_id int, created_at datetime, modified_at datetime) }
+	fileRepo eval { create table if not exists programs(name string, description text, version string, tags text, uploads_id int, created_at datetime, modified_at datetime) }
 }
 
 #data should be a list void of commas. we put in the commas in this proc
@@ -20,7 +20,7 @@ proc ::repo::insert {table coldata} {
 	if [dict exists $coldata description] {
 		set description [dict get $coldata description]
 	}
-	if [dict exists $coldata description] {
+	if [dict exists $coldata type] {
 		set type [dict get $coldata type]
 	}
 	if [dict exists $coldata uploader] {
@@ -35,12 +35,15 @@ proc ::repo::insert {table coldata} {
 	if [dict exists $coldata votes] {
 		set votes [dict get $coldata votes]
 	}
-	if [dict exists $coldata program_id] {
-		set program_id [dict get $coldata program_id]
+	if [dict exists $coldata programs_id] {
+		set programs_id [dict get $coldata programs_id]
 	}
-	#Porgrams
+	#programs
 	if [dict exists $coldata version] {
 		set version [dict get $coldata version]
+	}
+	if [dict exists $coldata uploads_id] {
+		set uploads_id [dict get $coldata uploads_id]
 	}
 	#datetime
 	if [dict exists $coldata created_at] {
@@ -56,23 +59,20 @@ proc ::repo::insert {table coldata} {
 
 	switch $table {
     uploads {
-        #fileRepo eval {INSERT INTO uploads (filename) VALUES ($filename,$description);	}
-				fileRepo eval {INSERT INTO uploads VALUES ($name,$description,$type,$uploader, $blob, $tags, $votes, $program_id, $created_at, $modified_at)}
+				fileRepo eval {INSERT INTO uploads VALUES ($name,$description,$type,$uploader, $blob, $tags, $votes, $programs_id, $created_at, $modified_at)}
     }
     programs {
-        fileRepo eval {INSERT INTO programs VALUES($name,$description,$version,$tags,$created_at,$modified_at)}
+        fileRepo eval {INSERT INTO programs VALUES($name,$description,$version,$tags,$uploads_id,$created_at,$modified_at)}
     }
     default {
-			fileRepo eval {INSERT INTO uploads VALUES ($name,$description,$type,$uploader, $blob, $tags, $votes, $program_id, $created_at, $modified_at)}
+			fileRepo eval {INSERT INTO uploads VALUES ($name,$description,$type,$uploader, $blob, $tags, $votes, $programs_id, $created_at, $modified_at)}
     }
 	}
-
 }
 
-#can only take one entry at a time at this point
+#recursive because I only know how to do one update at a time with one value.
+#so pop off each column, and each data point, and update the database
 proc ::repo::update {table id coldata} {
-	#recursive because I only know how to do one update at a time with one value.
-	#so pop off each column, and each data point, and update the database
 
 	if {$coldata eq {}} then {
 		return
@@ -101,11 +101,25 @@ proc ::repo::delete {table id} {
 	fileRepo eval {DELETE FROM $table WHERE rowid=$id;}
 }
 
-proc ::repo::read {table id} {
-	#db eval "SELECT component FROM $table WHERE LC = :lc" {
-  #  puts "component = $component"
-	#}
+proc ::repo::getspecific {table id col} {
+	return [fileRepo eval "SELECT $col FROM $table WHERE rowid=$id"]
 }
+
+proc ::repo::getobject {table id} {
+	return [fileRepo eval "SELECT * FROM $table WHERE rowid=$id"]
+}
+
+proc ::repo::getprogramuploads {id} {
+	#make this into a list
+	return [fileRepo eval "SELECT * FROM uploads WHERE programs_id=$id"]
+}
+
+proc ::repo::getuploadprograms {id} {
+	#make this into a list
+	return [fileRepo eval "SELECT * FROM programs WHERE rowid=$id"]
+}
+
+
 
 #flesh out index.html to show a list of files,
 #dynamically create index.html on the server- put place holders in it to read data from data base and fill it.
