@@ -1,0 +1,21 @@
+package require tcltest
+namespace import ::tcltest::*
+
+source ../lib/simple-templater.tcl
+
+test render_interpolatesBasicString {
+} -body {
+	::simp-templer::render {name John} "Moo {{name}}"
+} -result {Moo John}
+
+test render_interpolatesBasicStringWithRepeats {
+} -body {
+	::simp-templer::render {name John} "{{name}} Moo {{name}} {{name}}"
+} -result {John Moo John John}
+
+test render_interpolatesMultipleValues {
+} -body {
+	::simp-templer::render \
+		{name John address {123 Fake Street} car-model Rogue} \
+		"Name: {{name}}, Address: {{address}}, Car Model: {{car-model}}"
+} -result {Name: John, Address: 123 Fake Street, Car Model: Rogue}
