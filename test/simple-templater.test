@@ -5,17 +5,24 @@ source ../lib/simple-templater.tcl
 
 test render_interpolatesBasicString {
 } -body {
-	::simp-templer::render {name John} "Moo {{name}}"
-} -result {Moo John}
+	::simp-templer::render {name Johann} "Moo {{name}}"
+} -result {Moo Johann}
 
 test render_interpolatesBasicStringWithRepeats {
 } -body {
-	::simp-templer::render {name John} "{{name}} Moo {{name}} {{name}}"
-} -result {John Moo John John}
+	::simp-templer::render {name Johann} "{{name}} Moo {{name}} {{name}}"
+} -result {Johann Moo Johann Johann}
 
 test render_interpolatesMultipleValues {
 } -body {
 	::simp-templer::render \
-		{name John address {123 Fake Street} car-model Rogue} \
+		{name Johann address {123 Fake Street} car-model Rogue} \
 		"Name: {{name}}, Address: {{address}}, Car Model: {{car-model}}"
-} -result {Name: John, Address: 123 Fake Street, Car Model: Rogue}
+} -result {Name: Johann, Address: 123 Fake Street, Car Model: Rogue}
+
+test render_interpolatesMultipleValuesWithRepeats {
+} -body {
+	::simp-templer::render \
+		{name Johann address {123 Fake Street} car-model Rogue} \
+		"Name: {{name}}, Address: {{address}}, Car Model: {{car-model}}, Name again: {{name}}{{name}}"
+} -result {Name: Johann, Address: 123 Fake Street, Car Model: Rogue, Name again: JohannJohann}
