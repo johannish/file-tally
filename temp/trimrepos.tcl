@@ -9,6 +9,20 @@ proc ::repo::create {} {
 	fileRepo eval { create table if not exists uploads(c1) }
 }
 
+proc ::repo::dostuff {} {
+	set x 0
+	set myArray ""
+	while {$x < 10000} {
+	  lappend myArray "1"
+		set x [expr $x + 1]
+	}
+	fileRepo transaction {
+	    foreach item $myArray {
+	        fileRepo eval {INSERT INTO uploads VALUES ($item)}
+	    }
+	}
+}
+
 proc ::repo::insert {table data} {
   fileRepo eval {INSERT INTO uploads VALUES ($data)}
 }
