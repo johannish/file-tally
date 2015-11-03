@@ -10,9 +10,7 @@ proc ::repo::create {} {
 	fileRepo eval { create table if not exists programs(name string, description text, version string, tags text, uploads_id int, created_at datetime, modified_at datetime) }
 }
 
-#data should be a list void of commas. we put in the commas in this proc
 proc ::repo::insert {table coldata} {
-	#set dictionary [dictmerge $cols $datas]
 
 	if [dict exists $coldata name] {
 		set name [dict get $coldata name]
@@ -72,33 +70,55 @@ proc ::repo::insert {table coldata} {
 
 #recursive because I only know how to do one update at a time with one value.
 #so pop off each column, and each data point, and update the database
-proc ::repo::update {table id coldata} {
+proc ::repo::update {table id coldata {index 0}} {
 
 	if {$coldata eq {}} then {
 		return
 	} elseif {[expr fmod([llength $coldata],2)] > 0} {
 		return "submitted data must be a dictionary."
+	} elseif {[string match *''* $coldata]} {
+	} elseif {[string match *'* $coldata]} {
+		regsub -all  "'" $coldata "''" coldata
 	}
+
 	set col [lindex $coldata 0]
 	set data [lindex $coldata 1]
 	set coldatas [lreplace $coldata 0 1]
+	set modified_at [clock format [clock seconds] -format "%Y/%m/%d %H:%M:%S"]
+
 	switch $table {
 		uploads {
-			fileRepo eval "UPDATE uploads SET $col=$data WHERE rowid=$id"
+			if {$index == 0} {
+				fileRepo eval "UPDATE uploads SET modified_at='$modified_at' WHERE rowid=$id"
+			}
+			fileRepo eval "UPDATE uploads SET $col='$data' WHERE rowid=$id"
 		}
 		programs {
-			fileRepo eval "UPDATE programs SET $col=$data WHERE rowid=$id"
+			if {$index == 0} {
+				fileRepo eval "UPDATE programs SET modified_at='$modified_at' WHERE rowid=$id"
+			}
+			fileRepo eval "UPDATE programs SET $col='$data' WHERE rowid=$id"
 		}
 		default {
-			fileRepo eval "UPDATE uploads SET $col=$data WHERE rowid=$id"
+			if {$index == 0} {
+				fileRepo eval "UPDATE uploads SET modified_at='$modified_at' WHERE rowid=$id"
+			}
+			fileRepo eval "UPDATE uploads SET $col='$data' WHERE rowid=$id"
 		}
 	}
-	::repo::update $table $id $coldatas
+	::repo::update $table $id $coldatas [expr $index + 1 ]
 }
 
 #can only delete according to row at this point
 proc ::repo::delete {table id} {
-	fileRepo eval {DELETE FROM $table WHERE rowid=$id;}
+	switch $table {
+		uploads {
+			fileRepo eval {DELETE FROM uploads WHERE rowid=$id;}
+		}
+		programs {
+			fileRepo eval {DELETE FROM programs WHERE rowid=$id;}
+		}
+	}
 }
 
 proc ::repo::getspecific {table id col} {
@@ -136,3 +156,19 @@ proc ::repo::getuploadprograms {id} {
 # after commit
 #git checkout -b jordan
 #git push -u origin jordan
+
+
+
+#has modified option
+#if {$hasmodified eq ""} {
+#	if [dict exists $coldata modified_at] {
+#		set hasmod 1
+#	} else {
+#		set hasmod 0
+#		set modified_at [clock format [clock seconds] -format "%Y/%m/%d %H:%M:%S"]
+#	}
+#}
+#
+#switch $table {
+#	uploads {
+#		if {[llength $coldata < 3] && $hasmod == 0} {
