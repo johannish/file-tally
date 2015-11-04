@@ -6,8 +6,8 @@ proc ::repo::create {} {
 	file mkdir data
 	sqlite3 fileRepo ./data/repo.sqlite -create true
 
-	fileRepo eval { create table if not exists uploads(name string, description text, type string, uploader string, blob blob, tags text, votes int, programs_id int, created_at datetime, modified_at datetime) }
-	fileRepo eval { create table if not exists programs(name string, description text, version string, tags text, uploads_id int, created_at datetime, modified_at datetime) }
+	fileRepo eval { create table if not exists uploads(id INTEGER PRIMARY KEY AUTOINCREMENT, name string, description text, type string, uploader string, blob blob, tags text, votes int, programs_id int, created_at datetime, modified_at datetime) }
+	fileRepo eval { create table if not exists programs(id INTEGER PRIMARY KEY AUTOINCREMENT, name string, description text, version string, tags text, uploads_id int, created_at datetime, modified_at datetime) }
 }
 
 proc ::repo::insert {table coldata} {
@@ -57,23 +57,23 @@ proc ::repo::insert {table coldata} {
 
 	switch $table {
     uploads {
-				fileRepo eval {INSERT INTO uploads VALUES ($name,$description,$type,$uploader, $blob, $tags, $votes, $programs_id, $created_at, $modified_at)}
+			return [fileRepo eval {INSERT INTO uploads VALUES ($id, $name,$description,$type,$uploader, $blob, $tags, $votes, $programs_id, $created_at, $modified_at)}]
     }
     programs {
-        fileRepo eval {INSERT INTO programs VALUES($name,$description,$version,$tags,$uploads_id,$created_at,$modified_at)}
+    	return [fileRepo eval {INSERT INTO programs VALUES($id, $name,$description,$version,$tags,$uploads_id,$created_at,$modified_at)}]
     }
     default {
-			fileRepo eval {INSERT INTO uploads VALUES ($name,$description,$type,$uploader, $blob, $tags, $votes, $programs_id, $created_at, $modified_at)}
+			return [fileRepo eval {INSERT INTO uploads VALUES ($name,$description,$type,$uploader, $blob, $tags, $votes, $programs_id, $created_at, $modified_at)}]
     }
 	}
 }
 
 #recursive because I only know how to do one update at a time with one value.
 #so pop off each column, and each data point, and update the database
-proc ::repo::update {table id coldata {index 0}} {
+proc ::repo::update {table id coldata} {
 
 	if {$coldata eq {}} then {
-		return
+		return $id
 	} elseif {[expr fmod([llength $coldata],2)] > 0} {
 		return "submitted data must be a dictionary."
 	} elseif {[string match *''* $coldata]} {
@@ -81,32 +81,18 @@ proc ::repo::update {table id coldata {index 0}} {
 		regsub -all  "'" $coldata "''" coldata
 	}
 
-	set col [lindex $coldata 0]
-	set data [lindex $coldata 1]
-	set coldatas [lreplace $coldata 0 1]
-	set modified_at [clock format [clock seconds] -format "%Y/%m/%d %H:%M:%S"]
-
-	switch $table {
-		uploads {
-			if {$index == 0} {
-				fileRepo eval "UPDATE uploads SET modified_at='$modified_at' WHERE rowid=$id"
-			}
-			fileRepo eval "UPDATE uploads SET $col='$data' WHERE rowid=$id"
-		}
-		programs {
-			if {$index == 0} {
-				fileRepo eval "UPDATE programs SET modified_at='$modified_at' WHERE rowid=$id"
-			}
-			fileRepo eval "UPDATE programs SET $col='$data' WHERE rowid=$id"
-		}
-		default {
-			if {$index == 0} {
-				fileRepo eval "UPDATE uploads SET modified_at='$modified_at' WHERE rowid=$id"
-			}
-			fileRepo eval "UPDATE uploads SET $col='$data' WHERE rowid=$id"
-		}
+	if ![dict exists $coldata modified_at] {
+		set modified_at [clock format [clock seconds] -format "%Y/%m/%d %H:%M:%S"]
+		dict set $coldata modified_at $modified_at
 	}
-	::repo::update $table $id $coldatas [expr $index + 1 ]
+
+	set values ""
+	foreach key [dict keys $coldata] {
+		#fileRepo eval "UPDATE $table SET $key='[dict get $coldata $key]' WHERE rowid=$id"
+		if {$values ne ""} { set values "$values," }
+		set values "$values$key='[dict get $coldata $key]'"
+	}
+	fileRepo eval "UPDATE $table SET $values WHERE rowid=$id"
 }
 
 #can only delete according to row at this point
@@ -119,6 +105,7 @@ proc ::repo::delete {table id} {
 			fileRepo eval {DELETE FROM programs WHERE rowid=$id;}
 		}
 	}
+	return $id
 }
 
 proc ::repo::getspecific {table id col} {
@@ -134,11 +121,16 @@ proc ::repo::getprogramuploads {id} {
 	return [fileRepo eval "SELECT * FROM uploads WHERE programs_id=$id"]
 }
 
+#join -> join two tables
+#SELECT *
+#from programs left outer join uploads on programs.id = uploads.programs_id
 proc ::repo::getuploadprograms {id} {
 	#make this into a list
 	return [fileRepo eval "SELECT * FROM programs WHERE rowid=$id"]
 }
 
+#getlast id
+#SELECT last_insert_rowid()
 
 
 #flesh out index.html to show a list of files,
