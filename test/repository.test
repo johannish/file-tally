@@ -1,0 +1,53 @@
+package require tcltest
+
+source ../repository.tcl
+
+::tcltest::test insert_addsSparseDataCorrectly {
+} -setup {
+	::repo::create
+} -body {
+	::repo::insert uploads {name "filename1" type "type1"}
+	set outcome [::repo::getobject uploads 1]
+	puts "DEBUG: $outcome"
+	return [expr \
+		[string match {* filename1 *} $outcome] \
+		&& [string match {* type1 *} $outcome] \
+	]
+} -cleanup {
+	exec rm -rf ./data/repo.sqlite
+} -result 1
+
+::tcltest::test insert_addsSingleItemCorrectly {
+} -setup {
+	::repo::create
+} -body {
+	::repo::insert uploads {name "filename1" description "description1" type "type1" uploader "uploader1" blob "0010101110" tags "tag1, tag2" votes "vote1" programs_id "pid1"}
+	set outcome [::repo::getobject uploads 1]
+	#puts $outcome
+	return [expr \
+		[string match {* filename1 *} $outcome] \
+		&& [string match {* description1 *} $outcome] \
+		&& [string match {* type1 *} $outcome] \
+		&& [string match {* uploader1 *} $outcome] \
+		&& [string match {*{tag1, tag2}*} $outcome] \
+	]
+} -cleanup {
+	exec rm -rf ./data/repo.sqlite
+} -result 1
+
+::tcltest::test update_updatesSingleItemCorrectly {
+} -setup {
+	::repo::create
+	::repo::insert uploads {name "filename" uploader "uploader" votes "votes"}
+} -body {
+	::repo::update uploads 1 {name "update_name1" uploader "update_uploader1" votes "update_vote1" }
+	set outcome [::repo::getobject uploads 1]
+	#puts $outcome
+	return [expr \
+		[string match {* update_name1 *} $outcome] \
+		&& [string match {* update_uploader1 *} $outcome] \
+		&& [string match {* update_vote1 *} $outcome] \
+	]
+} -cleanup {
+	exec rm -rf ./data/repo.sqlite
+} -result 1
