@@ -2,13 +2,37 @@ package require tcltest
 
 source ../repository.tcl
 
+::tcltest::test insert_uploads_returnsId {
+} -setup {
+	::repo::create
+} -body {
+	set first [::repo::insert uploads {name "name"}]
+	set second [::repo::insert uploads {name "name"}]
+	set third [::repo::insert uploads {name "name"}]
+	return "$first $second $third"
+} -cleanup {
+	exec rm -rf ./data/repo.sqlite
+} -result {1 2 3}
+
+::tcltest::test insert_programs_returnsId {
+} -setup {
+	::repo::create
+} -body {
+	set first [::repo::insert programs {name "name"}]
+	set second [::repo::insert programs {name "name"}]
+	set third [::repo::insert programs {name "name"}]
+	return "$first $second $third"
+} -cleanup {
+	exec rm -rf ./data/repo.sqlite
+} -result {1 2 3}
+
 ::tcltest::test insert_addsSparseDataCorrectly {
 } -setup {
 	::repo::create
 } -body {
 	::repo::insert uploads {name "filename1" type "type1"}
 	set outcome [::repo::getobject uploads 1]
-	puts "DEBUG: $outcome"
+	#puts "DEBUG: $outcome"
 	return [expr \
 		[string match {* filename1 *} $outcome] \
 		&& [string match {* type1 *} $outcome] \

@@ -56,15 +56,17 @@ proc ::repo::insert {table coldata} {
 	}
 
 	switch $table {
-    uploads {
-			return [fileRepo eval {INSERT INTO uploads VALUES ($id, $name,$description,$type,$uploader, $blob, $tags, $votes, $programs_id, $created_at, $modified_at)}]
-    }
-    programs {
-    	return [fileRepo eval {INSERT INTO programs VALUES($id, $name,$description,$version,$tags,$uploads_id,$created_at,$modified_at)}]
-    }
-    default {
+		uploads {
+			fileRepo eval {INSERT INTO uploads VALUES ($id, $name,$description,$type,$uploader, $blob, $tags, $votes, $programs_id, $created_at, $modified_at)}
+			return [fileRepo eval {SELECT last_insert_rowid()}]
+		}
+		programs {
+			fileRepo eval {INSERT INTO programs VALUES($id, $name,$description,$version,$tags,$uploads_id,$created_at,$modified_at)}
+			return [fileRepo eval {SELECT last_insert_rowid()}]
+		}
+		default {
 			return [fileRepo eval {INSERT INTO uploads VALUES ($name,$description,$type,$uploader, $blob, $tags, $votes, $programs_id, $created_at, $modified_at)}]
-    }
+		}
 	}
 }
 
