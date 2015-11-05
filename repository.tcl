@@ -6,8 +6,29 @@ proc ::repo::create {} {
 	file mkdir data
 	sqlite3 fileRepo ./data/repo.sqlite -create true
 
-	fileRepo eval { create table if not exists uploads(id INTEGER PRIMARY KEY AUTOINCREMENT, name string, description text, type string, uploader string, blob blob, tags text, votes int, programs_id int, created_at datetime, modified_at datetime) }
-	fileRepo eval { create table if not exists programs(id INTEGER PRIMARY KEY AUTOINCREMENT, name string, description text, version string, tags text, uploads_id int, created_at datetime, modified_at datetime) }
+	fileRepo eval {
+		create table if not exists uploads(id INTEGER PRIMARY KEY AUTOINCREMENT
+			,name text
+			,description text
+			,type text
+			,uploader text
+			,blob blob
+			,tags text
+			,votes int
+			,programs_id int
+			,created_at datetime
+			,modified_at datetime)
+	}
+	fileRepo eval {
+		create table if not exists programs(id INTEGER PRIMARY KEY AUTOINCREMENT
+			,name text
+			,description text
+			,version text
+			,tags text
+			,uploads_id int
+			,created_at datetime
+			,modified_at datetime)
+	}
 }
 
 proc ::repo::insert {table coldata} {
