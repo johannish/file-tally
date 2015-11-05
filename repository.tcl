@@ -115,7 +115,10 @@ proc ::repo::getspecific {table id col} {
 }
 
 proc ::repo::getobject {table id} {
-	return [fileRepo eval "SELECT * FROM $table WHERE rowid=$id"]
+	fileRepo eval "select * from $table WHERE rowid=$id" rows {
+		array unset rows {\*} ;#get rid of sqlite's weird list(*) value containing all column names
+		return [array get rows]
+	}
 }
 
 proc ::repo::getprogramuploads {id} {

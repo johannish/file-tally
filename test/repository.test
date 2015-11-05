@@ -33,10 +33,11 @@ source ../repository.tcl
 	set id [::repo::insert uploads {name "filename1" type "type1"}]
 	set outcome [::repo::getobject uploads $id]
 	#puts "DEBUG: $outcome"
-	return [expr \
-		[string match {* filename1 *} $outcome] \
-		&& [string match {* type1 *} $outcome] \
-	]
+	return [expr {
+		[dict get $outcome name] == {filename1}
+		&& [dict get $outcome type] == {type1}
+		&& [dict get $outcome description] == {}
+	}]
 } -cleanup {
 	exec rm -rf ./data/repo.sqlite
 } -result 1
@@ -47,14 +48,15 @@ source ../repository.tcl
 } -body {
 	set id [::repo::insert uploads {name "filename1" description "description1" type "type1" uploader "uploader1" blob "0010101110" tags "tag1, tag2" votes "vote1" programs_id "pid1"}]
 	set outcome [::repo::getobject uploads $id]
-	#puts $outcome
-	return [expr \
-		[string match {* filename1 *} $outcome] \
-		&& [string match {* description1 *} $outcome] \
-		&& [string match {* type1 *} $outcome] \
-		&& [string match {* uploader1 *} $outcome] \
-		&& [string match {*{tag1, tag2}*} $outcome] \
-	]
+	#puts "DEBUG: $outcome"
+	return [expr {
+		[dict get $outcome name] == {filename1}
+		&& [dict get $outcome description] == {description1}
+		&& [dict get $outcome type] == {type1}
+		&& [dict get $outcome uploader] == {uploader1}
+		&& [dict get $outcome blob] == {0010101110}
+		&& [dict get $outcome tags] == {tag1, tag2}
+	}]
 } -cleanup {
 	exec rm -rf ./data/repo.sqlite
 } -result 1
@@ -67,11 +69,11 @@ source ../repository.tcl
 	::repo::update uploads $id {name "update_name1" uploader "update_uploader1" votes "update_vote1" }
 	set outcome [::repo::getobject uploads $id]
 	#puts $outcome
-	return [expr \
-		[string match {* update_name1 *} $outcome] \
-		&& [string match {* update_uploader1 *} $outcome] \
-		&& [string match {* update_vote1 *} $outcome] \
-	]
+	return [expr {
+		[dict get $outcome name] == {update_name1}
+		&& [dict get $outcome uploader] == {update_uploader1}
+		&& [dict get $outcome votes] == {update_vote1}
+	}]
 } -cleanup {
 	exec rm -rf ./data/repo.sqlite
 } -result 1
