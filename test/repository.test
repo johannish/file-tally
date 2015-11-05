@@ -77,3 +77,6 @@ source ../repository.tcl
 } -cleanup {
 	exec rm -rf ./data/repo.sqlite
 } -result 1
+
+
+::tcltest::cleanupTests
