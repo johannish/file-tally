@@ -78,5 +78,18 @@ source ../repository.tcl
 	exec rm -rf ./data/repo.sqlite
 } -result 1
 
+::tcltest::test update_handlesSingleQuotes {
+} -setup {
+	::repo::create
+	set id [::repo::insert uploads {name "filename" uploader "uploader" votes "votes"}]
+} -body {
+	::repo::update uploads $id {uploader "john's file isn't always the only one" }
+	set outcome [::repo::getobject uploads $id]
+	#puts $outcome
+	return [expr {[dict get $outcome uploader] == {john's file isn't always the only one}}]
+} -cleanup {
+	exec rm -rf ./data/repo.sqlite
+} -result 1
+
 
 ::tcltest::cleanupTests

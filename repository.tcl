@@ -70,8 +70,6 @@ proc ::repo::insert {table coldata} {
 	}
 }
 
-#recursive because I only know how to do one update at a time with one value.
-#so pop off each column, and each data point, and update the database
 proc ::repo::update {table id coldata} {
 
 	if {$coldata eq {}} then {
@@ -90,7 +88,6 @@ proc ::repo::update {table id coldata} {
 
 	set values ""
 	foreach key [dict keys $coldata] {
-		#fileRepo eval "UPDATE $table SET $key='[dict get $coldata $key]' WHERE rowid=$id"
 		if {$values ne ""} { set values "$values," }
 		set values "$values$key='[dict get $coldata $key]'"
 	}
