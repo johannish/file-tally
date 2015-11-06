@@ -60,7 +60,21 @@ $server route GET /file-details/:file-id {localhost:8080} apply {
 	}
 }
 
-$server route GET /* {localhost:8080} [::tanzer::file::handler new [list root ./public]]
+$server route GET / {localhost:8080} apply {
+	{event session args} {
+		if {$event ne "write"} return
+		set response [::tanzer::response new 200 {
+			Content-Type "text/html"
+		}]
+
+		$response buffer [::render::index]
+
+		$session send $response
+		$session nextRequest
+	}
+}
+
+$server route GET /static {localhost:8080} [::tanzer::file::handler new [list root ./public]]
 
 puts {about to listen on http://localhost:8080}
 $server listen 8080
