@@ -45,7 +45,7 @@ $server route POST /api/file {localhost:8080} apply {
 	}
 }
 
-$server route GET /file/:file-id {localhost:8080} apply {
+$server route GET /file-details/:file-id {localhost:8080} apply {
 	{event session args} {
 		if {$event ne "write"} return
 		set response [::tanzer::response new 200 {
