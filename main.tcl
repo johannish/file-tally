@@ -45,14 +45,15 @@ $server route POST /api/file {localhost:8080} apply {
 	}
 }
 
-$server route GET /file {localhost:8080} apply {
+$server route GET /file/:file-id {localhost:8080} apply {
 	{event session args} {
 		if {$event ne "write"} return
 		set response [::tanzer::response new 200 {
 			Content-Type "text/html"
 		}]
 
-		$response buffer [::render::fileDetails 1]
+		set fileId [[$session request] param {file-id}]
+		$response buffer [::render::fileDetails $fileId]
 
 		$session send $response
 		$session nextRequest
@@ -61,4 +62,5 @@ $server route GET /file {localhost:8080} apply {
 
 $server route GET /* {localhost:8080} [::tanzer::file::handler new [list root ./public]]
 
+puts {about to listen on http://localhost:8080}
 $server listen 8080
