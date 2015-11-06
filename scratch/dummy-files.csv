@@ -1,0 +1,7 @@
+0|name|description|type|uploader|blob|tags|votes|programs_id|created_at|modified_at
+|filename.config|Description of the file.|text|someUsername|001010111010101010|config,handbrake,minimalist|12|1|2015-11-06T14:30:15.200Z|2015-11-06T14:30:15.200Z
+|filename2.config|Description of the 2 file.|text|someUsername|001010111010101010|config,handbrake,minimalist|12|1|2015-11-06T14:30:15.200Z|2015-11-06T14:30:15.200Z
+|filename4.config|Description of the 4 file.|text|someUsername|001010111010101010|config,handbrake,minimalist|12|1|2015-11-06T14:30:15.200Z|2015-11-06T14:30:15.200Z
+|filename3.cfg|Description of the 3 file.|binary|someUsername|001010111010101010|config,some prog,squishy|12|2|2015-11-06T14:30:15.200Z|2015-11-06T14:30:15.200Z
+|filename5|Description of the 5 file.|unknown|someUsername|001010111010101010||12|3|2015-11-06T14:30:15.200Z|2015-11-06T14:30:15.200Z
+|filename6.txt|Textual info file|text|someUsername|001010111010101010|info|12|4|2015-11-06T14:30:15.200Z|2015-11-06T14:30:15.200Z
