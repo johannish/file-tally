@@ -1,4 +1,4 @@
-namespace eval simp-templer {}
+namespace eval ::simp-templer {}
 
 proc ::simp-templer::render {data template} {
 	set mapping [dict map {key val} $data {
