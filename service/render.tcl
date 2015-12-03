@@ -12,7 +12,6 @@ namespace eval ::render {
 
 source ./repository.tcl
 source ./lib/simple-templater.tcl
-source ./template/templates.tcl
 
 proc ::render::index {} {
 	variable indexTmpl
@@ -22,20 +21,5 @@ proc ::render::index {} {
 proc ::render::fileDetails {fileId} {
 	variable fileDetailsTmpl
 	set fileMetadata [::repo::getobject uploads $fileId]
-	set text [::templates::file-details]									;# option 1
-	return [::mustache::mustache $text $fileMetadata]
-#	set template {																				;# option 2
-#		<div>id: {{id}}</div>
-#		<div>name: {{name}}</div>
-#		<div>votes: {{votes}}</div>
-#		<div>type: {{type}}</div>
-#		<div>description: {{description}}</div>
-#		<div>tags: {{tags}}</div>
-#		<div>blob: {{blob}}</div>
-#		<div>uploader: {{uploader}}</div>
-#		<div>programs_id: {{programs_id}}</div>
-#		<div>created_at: {{created_at}}</div>
-#		<div>modified_at: {{modified_at}}</div>
-#	}
-#	return [::mustache::mustache $template $fileMetadata]
+	return [::mustache::mustache $fileDetailsTmpl $fileMetadata]
 }
