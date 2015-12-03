@@ -5,4 +5,5 @@ if {$tcl_version < 8.6} {
 
 package require tcltest
 
+::tcltest::configure -file {"*.test.tcl"} -notfile {}
 ::tcltest::runAllTests
