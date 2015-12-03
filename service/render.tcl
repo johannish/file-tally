@@ -11,11 +11,10 @@ namespace eval ::render {
 }
 
 source ./repository.tcl
-source ./lib/simple-templater.tcl
 
 proc ::render::index {} {
 	variable indexTmpl
-	return [::simp-templer::render {files {Here should be a list of files. It's time to use a real template spec, like mustache}} $indexTmpl]
+	return [::mustache::mustache $indexTmpl {files { {name file1} {name file2} {name file3} }}]
 }
 
 proc ::render::fileDetails {fileId} {
