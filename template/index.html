@@ -1,8 +1,22 @@
 <html>
 <body>
 	<h1>Welcome to File Tally</h1>
-	{{#files}}
-	<div>{{name}}</div>
-	{{/files}}
+	<table>
+		<thead>
+			<tr>
+				<td>File name</td><td>Type</td><td>Description</td><td>Votes</td>
+			</tr>
+		</thead>
+		<tbody>
+			{{#files}}
+			<tr>
+				<td><a href="/file-details/{{id}}">{{name}}</a></td>
+				<td>{{type}}</td>
+				<td>{{description}}</td>
+				<td>{{votes}}</td>
+			</tr>
+			{{/files}}
+		</tbody>
+	</table>
 </body>
 </html>

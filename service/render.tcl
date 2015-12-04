@@ -14,7 +14,8 @@ source ./repository.tcl
 
 proc ::render::index {} {
 	variable indexTmpl
-	return [::mustache::mustache $indexTmpl {files { {name file1} {name file2} {name file3} }}]
+	set fileList [::repo::getuploads]
+	return [::mustache::mustache $indexTmpl [list files $fileList]]
 }
 
 proc ::render::fileDetails {fileId} {
