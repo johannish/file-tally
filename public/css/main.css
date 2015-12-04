@@ -1,0 +1,8 @@
+table thead {
+	font-size: 1.2em;
+	font-style: bold;
+}
+
+table td {
+	padding-left: 50px;
+}

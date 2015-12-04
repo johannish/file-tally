@@ -74,7 +74,7 @@ $server route GET / {localhost:8080} apply {
 	}
 }
 
-$server route GET /static {localhost:8080} [::tanzer::file::handler new [list root ./public]]
+$server route GET /static/* {localhost:8080} [::tanzer::file::handler new [list root ./public listings 1]]
 
 puts {about to listen on http://localhost:8080}
 $server listen 8080
