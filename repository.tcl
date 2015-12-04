@@ -134,9 +134,19 @@ proc ::repo::getspecific {table id col} {
 
 proc ::repo::getobject {table id} {
 	fileRepo eval "select * from $table WHERE rowid=$id" rows {
-		array unset rows {\*} ;#get rid of sqlite's weird list(*) value containing all column names
+		array unset rows {\*} ;#get rid of sqlite's list(*) header row with column names
 		return [array get rows]
 	}
+}
+
+proc ::repo::getuploads {} {
+	set uploads [list]
+	fileRepo eval "select * from uploads" row {
+		#parray row
+		array unset row {\*} ;#get rid of sqlite's list(*) header row with column names
+		lappend uploads [array get row]
+	}
+	return $uploads
 }
 
 proc ::repo::getprogramuploads {id} {
@@ -151,39 +161,3 @@ proc ::repo::getuploadprograms {id} {
 	#make this into a list
 	return [fileRepo eval "SELECT * FROM programs WHERE rowid=$id"]
 }
-
-#getlast id
-#SELECT last_insert_rowid()
-
-
-#flesh out index.html to show a list of files,
-#dynamically create index.html on the server- put place holders in it to read data from data base and fill it.
-#index.html is just a template
-#https://github.com/ianka/mustache.tcl
-#http://tanzer.io/git/teaspoon.git
-
-#create a better table - date, votes, filename, type, tags, description, blob file
-#test script - sources repository.tcl and inserts a file into the database - line 5 to create a better table
-#create another proc to add file - that would be the one test script would call.
-#in test script - calls addfile(type and description), then file stuff,
-
-#branch:
-# after commit
-#git checkout -b jordan
-#git push -u origin jordan
-
-
-
-#has modified option
-#if {$hasmodified eq ""} {
-#	if [dict exists $coldata modified_at] {
-#		set hasmod 1
-#	} else {
-#		set hasmod 0
-#		set modified_at [clock format [clock seconds] -format "%Y/%m/%d %H:%M:%S"]
-#	}
-#}
-#
-#switch $table {
-#	uploads {
-#		if {[llength $coldata < 3] && $hasmod == 0} {

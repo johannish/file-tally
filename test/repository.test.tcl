@@ -2,6 +2,27 @@ package require tcltest
 
 source ../repository.tcl
 
+::tcltest::test getuploads_returnsAll {
+} -setup {
+	::repo::create
+	::repo::insert uploads {name "filename1" description "description1" type "type1" uploader "uploader1" blob "0010101110" tags "tag1, tag2" votes "vote1" programs_id "pid1"}
+	::repo::insert uploads {name "filename2" description "description2" type "type2" uploader "uploader2" blob "0010101110" tags "tag2, tag3" votes "vote2" programs_id "pid2"}
+	::repo::insert uploads {name "filename3" description "description3" type "type3" uploader "uploader3" blob "0010101110" tags "tag4, tag5" votes "vote3" programs_id "pid3"}
+	::repo::insert uploads {name "filename4" description "description4" type "type4" uploader "uploader4" blob "0010101110" tags "tag6, tag7" votes "vote4" programs_id "pid4"}
+} -body {
+	set outcome [::repo::getuploads]
+	set filenames [lmap upload $outcome {dict get $upload name}]
+	return [expr {
+		[llength $outcome] == 4
+		&& [lsearch $filenames {filename1}] >= 0
+		&& [lsearch $filenames {filename2}] >= 0
+		&& [lsearch $filenames {filename3}] >= 0
+		&& [lsearch $filenames {filename4}] >= 0
+	}]
+} -cleanup {
+	exec rm -rf ./data/repo.sqlite
+} -result 1
+
 ::tcltest::test insert_uploads_returnsId {
 } -setup {
 	::repo::create
