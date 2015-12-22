@@ -5,6 +5,7 @@ if {$tcl_version < 8.6} {
 
 package require tanzer 0.1
 package require tanzer::file::handler
+package require ncgi 1.4
 
 source ./repository.tcl
 source ./service/render.tcl
@@ -32,7 +33,16 @@ $server route GET /api {localhost:8080} apply {
 $server route POST /api/file {localhost:8080} apply {
 	{event session {data ""}} {
 		switch -- $event "read" {
-			puts $data
+			append currentdata [$session store data] $data
+			$session store data $currentdata
+			if {[$session requestBodyFinished]} {
+				set contentType [dict get [[$session request] headers] Content-Type]
+				set formdata [::ncgi::multipart $contentType [$session store data]]
+				set fd [open ./output wb]
+				puts -nonewline $fd [lindex [dict get $formdata upload] 1]
+				close $fd
+			}
+
 			return
 		} "write" {
 			set response [::tanzer::response new 200 {
