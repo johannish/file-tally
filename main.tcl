@@ -7,7 +7,7 @@ package require tanzer 0.1
 package require tanzer::file::handler
 package require ncgi 1.4
 
-source ./repository.tcl
+source ./service/repository.tcl
 source ./service/render.tcl
 
 ::repo::create

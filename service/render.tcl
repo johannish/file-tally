@@ -10,7 +10,7 @@ namespace eval ::render {
 	close $fp
 }
 
-source ./repository.tcl
+source ./service/repository.tcl
 
 proc ::render::index {} {
 	variable indexTmpl

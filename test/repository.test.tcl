@@ -1,6 +1,6 @@
 package require tcltest
 
-source ../repository.tcl
+source ../service/repository.tcl
 
 ::tcltest::test getuploads_returnsAll {
 } -setup {
