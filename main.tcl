@@ -9,6 +9,7 @@ package require ncgi 1.4
 
 source ./service/repository.tcl
 source ./service/render.tcl
+source ./service/form.tcl
 
 ::repo::create
 
@@ -37,18 +38,16 @@ $server route POST /api/file {localhost:8080} apply {
 			$session store data $currentdata
 			if {[$session requestBodyFinished]} {
 				set contentType [dict get [[$session request] headers] Content-Type]
-				set formdata [::ncgi::multipart $contentType [$session store data]]
-				set fd [open ./output wb]
-				puts -nonewline $fd [lindex [dict get $formdata upload] 1]
-				close $fd
+				set upload [::form::parseUpload $contentType [$session store data]]
+				set id [::repo::insert uploads $upload]
+				$session store newId $id
 			}
 
 			return
 		} "write" {
-			set response [::tanzer::response new 200 {
-				Content-Type "text/plain"
-			}]
-			$response buffer "got $data"
+			set response [::tanzer::response new 302 [
+				list Location /file-details/[$session store newId]
+			]]
 			$session send $response
 			$session nextRequest
 		}
