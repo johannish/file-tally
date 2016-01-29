@@ -10,6 +10,7 @@ package require ncgi 1.4
 source ./service/repository.tcl
 source ./service/render.tcl
 source ./service/form.tcl
+source ./service/file.tcl
 
 ::repo::create
 
@@ -51,6 +52,24 @@ $server route POST /api/file {localhost:8080} apply {
 			$session send $response
 			$session nextRequest
 		}
+	}
+}
+
+$server route GET /api/file/:id {localhost:8080} apply {
+	{event session args} {
+		if {$event ne "write"} return
+
+		set id [[$session request] param id]
+		set data [fileservice::getfile $id]
+
+		set response [::tanzer::response new 200 [
+			list Content-Disposition "attachment; filename=[dict get $data filename]"
+		]]
+
+		$response buffer [dict get $data contents]
+
+		$session send $response
+		$session nextRequest
 	}
 }
 
